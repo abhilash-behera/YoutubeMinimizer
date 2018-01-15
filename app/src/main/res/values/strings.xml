@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">YouTube Minimizer</string>
+    <string name="admob_id">ca-app-pub-1591993844409076~4856193052</string>
+    <string name="banner_ad_id">ca-app-pub-1591993844409076/6993780548</string>
+    <string name="interstitial_ad_id">ca-app-pub-1591993844409076/1117092740</string>
+    <string name="appodeal_app_id">c7b74e84298d73863775397211df9ca7333807079dcc7170</string>
+</resources>
