@@ -12,62 +12,59 @@
         android:id="@+id/root_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:ignore="UselessParent">
-        <com.google.android.gms.ads.AdView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#cdcece"
-            android:id="@+id/adView"
-            ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_ad_id"
-            android:visibility="visible"
-            android:layout_alignParentTop="true"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/logoLayout"
-            android:background="#ffffff"
-            android:layout_below="@+id/adView">
-            <ImageView
-                android:layout_width="103dp"
-                android:layout_height="50dp"
-                android:src="@drawable/logo_main"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"/>
-            <TextView
-                android:id="@+id/textViewOptions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="\u22EE"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:padding="10dp"
-                android:textColor="#000"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:layout_marginRight="10dp"
-                android:layout_marginEnd="10dp" />
-        </RelativeLayout>
+        tools:ignore="UselessParent"
+        android:background="#fff">
 
         <!--View while view is collapsed-->
         <RelativeLayout
             android:id="@+id/collapse_view"
             android:layout_width="match_parent"
             android:visibility="visible"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_below="@+id/logoLayout">
+            android:layout_height="match_parent">
 
-            <WebView
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@+id/adViewContainer">
+                <RelativeLayout
+                    android:id="@+id/nonVideoLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.youtubeminimizer.youtubebackgroundplayer.VideoEnabledWebView
+                        android:id="@+id/webView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#00ff00"/>
+
+                </RelativeLayout>
+
+                <!-- View where the video will be shown when video goes fullscreen -->
+                <RelativeLayout
+                    android:id="@+id/videoLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <!-- View that will be shown while the fullscreen video loads. For example you could include
+                    a "Loading..." message. However, in this particular example this view is actually defined in
+                    view_loading_video.xml and inflated programmatically in ExampleActivity.java. The reason for
+                    this is to keep the main layout (this file) cleaner. -->
+                     <View
+                        android:id="@+id/videoLoading"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:visibility="invisible" />
+
+                </RelativeLayout>
+            </RelativeLayout>
+
+            <!--<WebView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/webView"
                 android:focusable="false"
-                android:focusableInTouchMode="false"/>
+                android:focusableInTouchMode="false"/>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -207,6 +204,22 @@
                         android:text="Cancel"/>
                 </LinearLayout>
             </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/adViewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                android:layout_above="@+id/controlLayout"/>
+
+            <!--<com.google.android.gms.ads.AdView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/adView"
+                ads:adSize="BANNER"
+                ads:adUnitId="@string/banner_ad_id"
+                android:visibility="visible"
+                android:layout_above="@+id/controlLayout"/>-->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -241,6 +254,38 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="Minimize"
+                            android:textColor="#fff"
+                            android:layout_gravity="center_horizontal"/>
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    app:cardElevation="3dp"
+                    android:minWidth="100dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="4dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:id="@+id/imgMenu"
+                        android:padding="2dp"
+                        android:background="@drawable/button_background">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="20dp"
+                            android:layout_weight="1"
+                            android:src="@drawable/icon"
+                            android:layout_gravity="center_horizontal"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Menu"
                             android:textColor="#fff"
                             android:layout_gravity="center_horizontal"/>
                     </LinearLayout>

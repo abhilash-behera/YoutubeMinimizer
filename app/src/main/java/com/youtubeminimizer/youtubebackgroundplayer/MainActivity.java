@@ -1,18 +1,22 @@
 package com.youtubeminimizer.youtubebackgroundplayer;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import com.facebook.appevents.AppEventsLogger;
 import com.youtubeminimizer.youtubebackgroundplayer.retrofit.ApiClient;
 import com.youtubeminimizer.youtubebackgroundplayer.retrofit.VersionResponse;
 import com.crashlytics.android.Crashlytics;
@@ -25,6 +29,11 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
+    private BroadcastReceiver serviceStartedReceiver;
+    private boolean serviceStarted=false;
+    private boolean permissionAvailable;
+    private IntentFilter filter;
+    private AppEventsLogger logger;
 
 
     @Override
@@ -32,47 +41,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         checkConnection();
-        /*Appodeal.disableLocationPermissionCheck();
-        Appodeal.initialize(MainActivity.this, getResources().getString(R.string.appodeal_app_id), Appodeal.INTERSTITIAL);
-
-        if(getIntent().getBooleanExtra("ad",false)){
-            Appodeal.show(this,Appodeal.INTERSTITIAL);
-            Appodeal.setInterstitialCallbacks(new InterstitialCallbacks() {
-                @Override
-                public void onInterstitialLoaded(boolean b) {
-
-                }
-
-                @Override
-                public void onInterstitialFailedToLoad() {
-
-                }
-
-                @Override
-                public void onInterstitialShown() {
-
-                }
-
-                @Override
-                public void onInterstitialClicked() {
-
-                }
-
-                @Override
-                public void onInterstitialClosed() {
-                    finish();
-                }
-            });
-        }else{
-            setContentView(R.layout.activity_main);
-            checkConnection();
-        }*/
     }
 
     private void checkConnection(){
 
         if(Utils.isNetworkAvailable(MainActivity.this)){
             Fabric.with(this, new Crashlytics());
+            logger=AppEventsLogger.newLogger(MainActivity.this);
+            logEventToAnalytics();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
 
@@ -135,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
 
+
             @Override
             public void onFailure(Call<VersionResponse> call, Throwable t) {
                 runOnUiThread(new Runnable() {
@@ -157,16 +134,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void continueExecution(){
-
-        Handler handler=new Handler();
-        handler.postDelayed(new Runnable() {
+        filter=new IntentFilter(FloatingViewService.SERVICE_STARTED_INTENT);
+        serviceStartedReceiver=new BroadcastReceiver() {
             @Override
-            public void run() {
-                Intent serviceIntent=new Intent(MainActivity.this,FloatingViewService.class);
-                startService(serviceIntent);
+            public void onReceive(Context context, Intent intent) {
+                Log.d("awesome","Service started so stopping activity");
+                serviceStarted=true;
                 finish();
+                removeReceiver(serviceStartedReceiver);
             }
-        },1000);
+        };
+        registerReceiver(serviceStartedReceiver,filter);
+        Intent serviceIntent=new Intent(MainActivity.this,FloatingViewService.class);
+        serviceIntent.setAction(Utils.ACTION_MAXIMIZE);
+        startService(serviceIntent);
+    }
+    private void removeReceiver(BroadcastReceiver serviceStartedReceiver){
+        unregisterReceiver(serviceStartedReceiver);
     }
 
     @Override
@@ -183,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
                         Toast.makeText(this, "Please provide permission to draw over other apps", Toast.LENGTH_LONG).show();
                     }else{
+                        permissionAvailable=true;
                         getVersion();
                     }
 
@@ -191,5 +176,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    public void logEventToAnalytics() {
+        logger.logEvent("Started app");
     }
 }
